@@ -6,6 +6,7 @@ var formidable = require("formidable");
 var fs = require("fs");
 var express = require('express');
 var streznik = express();
+streznik.use( express.static( "public" ) );
 var path = require("path");
 var expressSession = require('express-session');
 streznik.set('view engine', 'ejs');
