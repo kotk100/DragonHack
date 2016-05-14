@@ -90,8 +90,23 @@ streznik.post('/nastavitve', function(request, response) {
 streznik.get('/nastavitve', function (request, response) {
   if(!request.session.prijavljen)
     response.redirect('/prijava');
-  else
-    response.render('nastavitve');
+  else {
+    fs.readFile('nastavitve.txt', 'utf8', function (err,data) {
+      if (err) {
+        return console.log("nastavitve");
+      } else {
+        var text = data.toString();
+        var lines = text.split("\n");
+        
+        for(var i in lines){
+          var curUsr = lines[i].split(",");
+          if(request.session.prijavljen == curUsr[0]){
+            response.render('nastavitve', {nastavitve: curUsr});
+          }
+        }
+      }
+    });
+  }
 });
 
 streznik.post('/prijava', function (request, response) {

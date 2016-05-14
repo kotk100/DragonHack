@@ -39,28 +39,28 @@
     <div class="center" >
       <form action="" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <input type="text" class="form-control" id="StudentId" name="StudentId" placeholder="Vpisna številka" />
+            <input type="text" class="form-control" id="StudentId" name="StudentId" placeholder="<%= nastavitve[1] %>" />
         </div>
         <div class="form-group">
-          <select class="form-control" style="color:#999" id="faculty" name="faculty" placeholder="Fakulteta">
+          <select class="form-control" style="color:#999" id="faculty" name="faculty" placeholder="Fakulteta za računalništvo in informatiko">
             <option value="Zivalski vrt">Fakulteta za računalništvo in informatiko</option>
           </select>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="Station" name="Station" placeholder="Vstopna postaja" />
+            <input type="text" class="form-control" id="Station" name="Station" placeholder="<%= nastavitve[3] %>" />
         </div>
         <div class="form-group">
           <p> Prevozna sredstva:</p>
-            <input type="checkbox" style="margin-left:20px;" name="vehicle1" value="0">  Avto<br>
-            <input type="checkbox" style="margin-left:20px;" name="vehicle2" value="0">  Avtobus<br>
-            <input type="checkbox" style="margin-left:20px;" name="vehicle3" value="0">  Kolo<br>
-            <input type="checkbox" style="margin-left:20px;" name="vehicle4" value="0">  Hoja<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle1" value="0" <% if(nastavitve[4] == 1){ %> checked <% } %> >  Avto<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle2" value="0" <% if(nastavitve[5] == 1){ %> checked <% } %>>  Avtobus<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle3" value="0" <% if(nastavitve[6] == 1){ %> checked <% } %>>  Kolo<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle4" value="0" <% if(nastavitve[7] == 1){ %> checked <% } %>>  Hoja<br>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="time" name="time" placeholder="Čas pred odhodom" />
+            <input type="text" class="form-control" id="time" name="time" placeholder="<%= nastavitve[8] %>" />
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="distance" name="distance" placeholder="Oddaljenost od fakultete" />
+            <input type="text" class="form-control" id="distance" name="distance" placeholder="<%= nastavitve[9] %>" />
         </div>
         <div class="form-group" style="float:right">
             <input type="submit" class="btn btn-default" value="Shrani" />
