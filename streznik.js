@@ -23,6 +23,8 @@ streznik.use(
 
 var users;
 
+
+
 streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
@@ -31,20 +33,20 @@ streznik.get('/', function (request, response) {
     }
 });
 
+streznik.get('/odjava', function (request, response) {
+    request.session.prijavljen = null;
+    response.redirect('/prijava');
+});
+
+streznik.get('/nastavitve', function (request, response) {
+    response.render('nastavitve');
+});
+
 streznik.post('/prijava', function (request, response) {
     var form = new formidable.IncomingForm();
     
     form.parse(request, function (napaka1, polja, datoteke) {
-      if(!users)
-        fs.readFile('users.txt', function (err, data) {
-          if (err) {
-              return console.error(err);
-          }
-          users = data.toString().split("\n");
-          
-          for(var user in users)
-            users[user] = users[user].split(",");
-        });
+      
         
       for(var u in users)
         if(users[u][1] == polja['UserName']){
@@ -53,12 +55,7 @@ streznik.post('/prijava', function (request, response) {
             break;
           }
         }
-            
-        console.log(request.session.prijavljen);
-          
-        
-
-      console.log(polja);
+  
       response.redirect('/');
     });
 });
@@ -68,5 +65,15 @@ streznik.get('/prijava', function (require, response) {
 });
 
 streznik.listen(process.env.PORT, function() {
+  fs.readFile('users.txt', function (err, data) {
+    if (err) {
+        return console.error(err);
+    }
+    users = data.toString().split("\n");
+    
+    for(var user in users)
+      users[user] = users[user].split(",");
+  });
+  
   console.log("Strežnik pognan!");
 })
