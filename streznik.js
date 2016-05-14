@@ -97,7 +97,7 @@ streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
     } else {
-      var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=63140099";
+      var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
       parsej(url, function(vrstice){
         response.render('index', {
           stuff: vrstice
