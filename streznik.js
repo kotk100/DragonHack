@@ -39,8 +39,7 @@ streznik.get('/odjava', function (request, response) {
 });
 
 streznik.post('/nastavitve', function(request, response) {
-        var form = new formidable.IncomingForm();
-    
+    var form = new formidable.IncomingForm();
     form.parse(request, function (napaka1, polja, datoteke) {
         var fs = require('fs');
         fs.readFile('Trola.txt', 'utf8', function (err,data) {
@@ -49,8 +48,8 @@ streznik.post('/nastavitve', function(request, response) {
           }
           var text = toString(data);
           var lines = text.split("\n");
-          for(i in lines){
-            var curUsr = lines.split(",")
+          for(var i in lines){
+            var curUsr = lines.split(",");
             if(request.session.prijavljen == curUsr[0]){
               lines[i] =  request.session.prijavljen + "," + polja;
               //save new thingy
@@ -63,8 +62,10 @@ streznik.post('/nastavitve', function(request, response) {
   
   
       response.redirect('/nastavitve');
+        });
     });
-})
+});
+
 
 function convertToCSV(lines){
   var csvContent = "data:text/csv;charset=utf-8,";
@@ -111,5 +112,5 @@ streznik.listen(process.env.PORT, function() {
   });
   
   console.log("Strežnik pognan!");
-})
+});
 
