@@ -4,17 +4,63 @@
 <head>
   <title>BestHack</title>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <style type="text/css">
+    .sirina {
+      width:50%;
+    }
+    
+    .center {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translate(-50%, -15%);
+      width:50%;
+    }
+  </style>
 </head>
 
 <body>
     <div style="width:100%; padding:10px;">
-     
-      <div>
-          <input type="submit" class="btn btn-default" style="float:right; margin-left:20px;" value="Nastavitve" />
-      </div>
+      <form action="/" method="get">
+        <div>
+            <input type="submit" class="btn btn-default" style="float:right; margin-left:20px;" value="Home" />
+        </div>
+      </form>
       <form action="/odjava" method="get">
         <div>
             <input type="submit" class="btn btn-default" style="float:right;" value="Odjava" />
+        </div>
+      </form>
+    </div>
+    
+    <div class="center" >
+      <form action="" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <input type="text" class="form-control" id="StudentId" name="StudentId" placeholder="Vpisna številka" />
+        </div>
+        <div class="form-group">
+          <select class="form-control" id="faculty" name="faculty" placeholder="Fakulteta">
+            <option value="Zivalski vrt">Fakulteta za računalništvo in informatiko</option>
+          </select>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="Station" name="Station" placeholder="Vstopna postaja" />
+        </div>
+        <div class="form-group">
+          <p> Prevozna sredstva:</p>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle1" value="0">  Avto<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle2" value="0">  Avtobus<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle3" value="0">  Kolo<br>
+            <input type="checkbox" style="margin-left:20px;" name="vehicle4" value="0">  Hoja<br>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="time" name="time" placeholder="Čas pred odhodom" />
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" id="distance" name="distance" placeholder="Oddaljenost od fakultete" />
+        </div>
+        <div class="form-group">
+            <input type="submit" class="btn btn-default" value="Shrani" />
         </div>
       </form>
     </div>
