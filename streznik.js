@@ -60,6 +60,7 @@ streznik.post('/nastavitve', function(request, response) {
             if(!polja.vehicle4)prevozi += 0 + ",";
             else prevozi += 1 + ",";
             var podatki = request.session.prijavljen + "," + polja.StudentId + "," + polja.faculty + "," + polja.Station + "," + prevozi + polja.time + "," + polja.distance;
+            request.session.nastavitve = podatki.split(",");
             var flag = 0;
             var endText;
             for(var i in lines){
@@ -78,6 +79,7 @@ streznik.post('/nastavitve', function(request, response) {
             console.log(lines);
             fs.writeFileSync("nastavitve.txt", endText, "UTF-8",{'flags': 'w+'}); 
             lines[lines.length] = podatki;
+            
 
             response.redirect('/nastavitve');
           }
@@ -123,7 +125,22 @@ streznik.post('/prijava', function (request, response) {
           }
         }
   
-      response.redirect('/');
+      fs.readFile('nastavitve.txt', 'utf8', function (err,data) {
+        if (err) {
+          return console.log("nastavitve");
+        } else {
+          var text = data.toString();
+          var lines = text.split("\n");
+          
+          for(var i in lines){
+            var curUsr = lines[i].split(",");
+            if(request.session.prijavljen == curUsr[0]){
+              request.session.nastavitve = curUsr;
+              response.redirect('/');
+            }
+          }
+        }
+      });
     });
 });
 
