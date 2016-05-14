@@ -10,6 +10,10 @@ streznik.get('/', function (require, response) {
     response.sendfile('index.html');
 });
 
+streznik.get('/prijava', function (require, response) {
+    response.sendfile('prijava.html');
+});
+
 streznik.listen(process.env.PORT, function() {
   console.log("Strežnik pognan!");
 })
