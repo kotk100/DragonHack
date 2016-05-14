@@ -6,7 +6,7 @@ var express = require('express');
 var streznik = express();
 var path = require("path");
 var expressSession = require('express-session');
-streznik.use(express.static('public'));
+//streznik.use(express.static('public'));
 streznik.use(
   expressSession({
     secret: 'NoDejNo', // Skrivni ključ za podpisovanje piškotkov
@@ -25,11 +25,11 @@ streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
     }
-   // response.sendfile('index.html');
+    response.sendfile('index.html');
 });
 
 streznik.get('/prijava', function (require, response) {
-    response.sendfile('prijava.html');
+    response.sendfile('public/prijava.html');
 });
 
 streznik.listen(process.env.PORT, function() {
