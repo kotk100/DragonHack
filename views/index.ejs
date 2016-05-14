@@ -6,7 +6,7 @@
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 </head>
 
-<body>
+<body style="background-image:url('images/ostalo.jpg')">
     <div style="width:100%; padding:10px;">
       <form action="/nastavitve" method="get">
       <div>
@@ -19,19 +19,22 @@
         </div>
       </form>
     </div>
-    <div id="tabelaDiv" style="width: 50%; padding: 10px">
+    <div id="tabelaDiv" style="width: 50%; padding: 10px; margin-top:40px; margin-right:0px; margin-left:auto">
       <table id="tabela" border="1" style="width:100%">
         <% var maxTime = 16 %>
         <% var stevec = 7; %>
         <% var dnevi = ['ponedeljek', 'torek', 'sreda', 'četrtek', 'petek']; %>
+        <% var dneviB = ['Ponedeljek', 'Torek', 'Sreda', 'Četrtek', 'Petek']; %>
         <% var urnik = stuff; %>
         <tr style="height: 50px">
           <% for(var i = 0; i < 6; i++){ %>
             <% if(i==0) { %>
-              <td style="width: 20px"></td>
+              <!-- prazna celica -->
+              <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;"></td>
             <% }else{ %>
-              <td style="width: 20px">
-                <%= dnevi[i-1] %>
+              <!-- dnevi -->
+              <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;font-weight: bold;font-size: 18px;">
+                <%= dneviB[i-1] %>
               </td>
             <% } %>
           <% } %>
@@ -41,7 +44,8 @@
             <% for(var j = 0; j < 6; j++) { %>
                 <% var not = 0 %>
                 <% if(j==0){ %>
-                  <td style="width: 20px">
+                  <!-- ure -->
+                  <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;font-weight: bold;">
                     <%= stevec+":00" %>
                   </td>
                 <% }else{ %>
@@ -49,14 +53,14 @@
                     <% if(not == 0 && urnik[k].dan == dnevi[j-1]) { %>
                         <% if(stevec >= parseInt(urnik[k].zacetek.split(':')[0]) && stevec < parseInt(urnik[k].konec.split(':')[0])) { %>
                           <% not = 1 %>
-                          <td style="width: 20px; background-color:  <%= urnik[k].barva%> ">
+                          <td style="width: 20px; background-color:  <%= urnik[k].barva%>;text-align: center; ">
                             <%= urnik[k].naziv%>
                           </td>
                         <% } %>
                     <% }%>
                   <% } %>
                   <% if(not == 0) { %>
-                    <td style="width: 20px"></td>
+                    <td style="width: 20px; background-color:#ffffff; opacity:0.6;text-align: center;"></td>
                   <% } %>
                 <% } %>
             <% } %>
