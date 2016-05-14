@@ -3,6 +3,7 @@
   "description": "DragonHack stuff",
   "author": "Hudzo",
   "dependencies": {
-    "express": "latest"
+    "express": "latest",
+    "express-session":"latest"
   }
 }
