@@ -233,4 +233,66 @@ streznik.listen(process.env.PORT, function() {
   
   console.log("Strežnik pognan!");
 });
+//Funkcija za vracanje casa odhoda
+function vrniCasOdhoda(zacetek){
+  var vhod = request.session.nastavitve[3];
+  var casPriprave = request.session.nastavitve[8];
+  var casOdhoda = vrniCasTrole(zacetek, vhod);
+  var skupniCas = parseInt(casOdhoda.split(".")[0] * 60) + parseInt(casOdhoda.split(".")[1]) + parseInt(casPriprave);
+  return Math.floor(skupniCas / 60) + "." + Math.floor(skupniCas % 60);
+}
 
+//Funkcija za vracanje najugodnejsi termin trole
+function vrniCasTrole(zacetek, vhod){
+  var fs = require('fs');
+  fs.readFile('Trola.txt', 'utf8', function (err,data) {
+    if (err) {
+      return console.log("hahahaha");
+    }
+    var postaje = data.split("!"); 
+    var zacPost;
+    //console.log(postaje[0]);
+    var i;
+    for (i = 0; i < postaje.length; i++){
+        zacPost = postaje[i].split(",");
+        if(zacPost[0] == vhod){
+            break;
+        }
+    }
+    var add;
+    var index, odhodniCasi;
+    if(i == 7)return "0.00";
+    if(i < 7){
+      odhodniCasi = postaje[0].split(",");
+      var maxCas = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - 10;
+      for(index = 1; index < odhodniCasi.length; index++){
+        var cas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]);
+        if(cas > maxCas){index--; break;}
+      }
+      
+      
+    }
+    else {
+      var maxCas = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - 10;
+      odhodniCasi = postaje[postaje.length - 1].split(",");
+      for(index = 1; index < odhodniCasi.length; index++){
+        var cas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]);
+        if(cas > maxCas){index--; break;}
+      }
+    }
+    
+    //-10 popravi ce dodas nov urnik!!!!
+    if(zacPost[0] == odhodniCasi[0]) return odhodniCasi[index];
+    var bestCas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]) + parseInt(zacPost[1]);
+    return Math.floor(bestCas / 60) + "." + Math.floor(bestCas % 60);
+  
+  });
+}
+
+//Funkcija za kolo
+function vrniCasOdhodaKolo(zacetek){
+  var razdalja = parseInt(request.session.nastavitve[9]);
+  var casVoznje = Math.floor((razdalja/20) * 60);
+  var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
+  return Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60);
+}
