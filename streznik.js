@@ -43,39 +43,54 @@ streznik.post('/nastavitve', function(request, response) {
     var form = new formidable.IncomingForm();
     form.parse(request, function (napaka1, polja, datoteke) {
         var fs = require('fs');
-        fs.readFile('Trola.txt', 'utf8', function (err,data) {
+        fs.readFile('nastavitve.txt', 'utf8', function (err,data) {
           if (err) {
             return console.log("hahahaha");
           }
-          var text = toString(data);
-          var lines = text.split("\n");
-          for(var i in lines){
-            var curUsr = lines.split(",");
-            if(request.session.prijavljen == curUsr[0]){
-              lines[i] =  request.session.prijavljen + "," + polja;
-              //save new thingy
-              return;
+          else{
+            var text = data.toString();
+            var lines = text.split("\n");
+            var prevozi;
+            if(!polja.vehicle1)prevozi = 0 + ",";
+            else prevozi = 1 + ",";
+            if(!polja.vehicle2)prevozi += 0 + ",";
+            else prevozi += 1 + ",";
+            if(!polja.vehicle3)prevozi += 0 + ",";
+            else prevozi += 1 + ",";
+            if(!polja.vehicle4)prevozi += 0 + ",";
+            else prevozi += 1 + ",";
+            var podatki = request.session.prijavljen + "," + polja.StudentId + "," + polja.faculty + "," + polja.Station + "," + prevozi + polja.time + "," + polja.distance;
+            var flag = 0;
+            var endText;
+            for(var i in lines){
+              var curUsr = lines[i].split(",");
+              if(request.session.prijavljen == curUsr[0]){
+                lines[i] = podatki;
+                endText = lines.join("\n");
+                flag = 1;
+                break;
+              }
             }
+            if(flag == 0){
+              lines[lines.length] = podatki;
+              endText = lines.join("\n");
+            }
+            console.log(lines);
+            fs.writeFileSync("nastavitve.txt", endText, "UTF-8",{'flags': 'w+'}); 
+            lines[lines.length] = podatki;
+
+            response.redirect('/nastavitve');
           }
-          var newUsr = request.session.prijavljen + "," + polja;
-          lines[lines.length] = newUsr;
-        
-  
-  
-      response.redirect('/nastavitve');
         });
     });
 });
 
 
-function convertToCSV(lines){
-  var csvContent = "data:text/csv;charset=utf-8,";
-  for(var i = 0; i < lines.length; i++){
-    
-  }
-}
 
 streznik.get('/nastavitve', function (request, response) {
+  if(!request.session.prijavljen)
+    response.redirect('/prijava');
+  else
     response.render('nastavitve');
 });
 
