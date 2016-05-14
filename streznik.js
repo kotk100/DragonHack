@@ -27,6 +27,57 @@ streznik.use(
 
 var users;
 
+var prviNaDan = function(vrstice, callback) {
+  var minDan = [];
+  for(var x = 0; x < vrstice.length; x++) {
+    var dan = vrstice[x].dan;
+    switch(dan) {
+      case "ponedeljek":  if(!minDan[0]) {
+                           minDan[0] = vrstice[x];   
+                          } else {
+                            if(minDan[0].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[0] = vrstice[x];
+                          }
+                          break;
+                          
+      case "torek":       if(!minDan[1]) {
+                           minDan[1] = vrstice[x];   
+                          } else {
+                            if(minDan[1].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[1] = vrstice[x];
+                          }
+                          break;
+                          
+      case "sreda":       if(!minDan[2]) {
+                           minDan[2] = vrstice[x];   
+                          } else {
+                            if(minDan[2].zacetek.split(":") >vrstice[x].zacetek.split(":"))
+                              minDan[2] = vrstice[x];
+                          }
+                          break;
+                          
+      case "četrtek":     if(!minDan[3]) {
+                           minDan[3] = vrstice[x];   
+                          } else {
+                            if(minDan[3].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[3] = vrstice[x];
+                          }
+                          break;
+                          
+      case "petek":       if(!minDan[4]) {
+                           minDan[4] = vrstice[x];   
+                          } else {
+                            if(minDan[4].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[4] = vrstice[x];
+                          }
+                          break;
+                          
+      default: console.log(dan);
+    }
+  }
+  callback(minDan);
+}
+
 var parsej = function(url, callback) {
   
   var vrstice = [];
@@ -99,8 +150,22 @@ streznik.get('/', function (request, response) {
     } else {
       var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
       parsej(url, function(vrstice){
-        response.render('index', {
-          stuff: vrstice
+        prviNaDan(vrstice, function(dnevi){
+          var d = new Date();
+          var danId = d.getDay();
+          var hourId = d.getHours();
+          
+          if(danId >= 5) {
+            danId = 0;
+          } else {
+            if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0]))
+              danId++;
+          }
+          var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
+          
+          response.render('index', {
+            stuff: vrstice
+          });
         });
       });
     }
