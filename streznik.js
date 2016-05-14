@@ -162,7 +162,8 @@ streznik.get('/', function (request, response) {
               danId++;
           }
           var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
-          
+          //Cas ko se more student zbuditi
+          var casBujenja = vrniCasOdhoda(zaCofa);
           response.render('index', {
             stuff: vrstice
           });
@@ -299,16 +300,16 @@ streznik.listen(process.env.PORT, function() {
   console.log("Strežnik pognan!");
 });
 //Funkcija za vracanje casa odhoda
-function vrniCasOdhoda(zacetek){
+function vrniCasOdhoda(zacetek, callback){
   var vhod = request.session.nastavitve[3];
   var casPriprave = request.session.nastavitve[8];
   var casOdhoda = vrniCasTrole(zacetek, vhod);
   var skupniCas = parseInt(casOdhoda.split(".")[0] * 60) + parseInt(casOdhoda.split(".")[1]) + parseInt(casPriprave);
-  return Math.floor(skupniCas / 60) + "." + Math.floor(skupniCas % 60);
+  callback(Math.floor(skupniCas / 60) + "." + Math.floor(skupniCas % 60));
 }
 
 //Funkcija za vracanje najugodnejsi termin trole
-function vrniCasTrole(zacetek, vhod){
+function vrniCasTrole(zacetek, callback){
   var fs = require('fs');
   fs.readFile('Trola.txt', 'utf8', function (err,data) {
     if (err) {
@@ -349,15 +350,15 @@ function vrniCasTrole(zacetek, vhod){
     //-10 popravi ce dodas nov urnik!!!!
     if(zacPost[0] == odhodniCasi[0]) return odhodniCasi[index];
     var bestCas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]) + parseInt(zacPost[1]);
-    return Math.floor(bestCas / 60) + "." + Math.floor(bestCas % 60);
+    callback(Math.floor(bestCas / 60) + "." + Math.floor(bestCas % 60));
   
   });
 }
 
 //Funkcija za kolo
-function vrniCasOdhodaKolo(zacetek){
+function vrniCasOdhodaKolo(zacetek, callback){
   var razdalja = parseInt(request.session.nastavitve[9]);
   var casVoznje = Math.floor((razdalja/20) * 60);
   var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
-  return Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60);
+  callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
 }
