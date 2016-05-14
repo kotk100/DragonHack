@@ -2,10 +2,13 @@ if (!process.env.PORT)
   process.env.PORT = 8080;
 
 // Priprava strežnika
+var formidable = require("formidable");
+var fs = require("fs");
 var express = require('express');
 var streznik = express();
 var path = require("path");
 var expressSession = require('express-session');
+streznik.set('view engine', 'ejs');
 //streznik.use(express.static('public'));
 streznik.use(
   expressSession({
@@ -18,18 +21,50 @@ streznik.use(
   })
 );
 
-
-
+var users;
 
 streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
+    } else {
+      response.render('index');
     }
-    response.sendfile('index.html');
+});
+
+streznik.post('/prijava', function (request, response) {
+    var form = new formidable.IncomingForm();
+    
+    form.parse(request, function (napaka1, polja, datoteke) {
+      if(!users)
+        fs.readFile('users.txt', function (err, data) {
+          if (err) {
+              return console.error(err);
+          }
+          users = data.toString().split("\n");
+          
+          for(var user in users)
+            users[user] = users[user].split(",");
+        });
+        
+      for(var u in users)
+        if(users[u][1] == polja['UserName']){
+          if(users[u][2] == polja['Password']){
+            request.session.prijavljen = users[u][0];
+            break;
+          }
+        }
+            
+        console.log(request.session.prijavljen);
+          
+        
+
+      console.log(polja);
+      response.redirect('/');
+    });
 });
 
 streznik.get('/prijava', function (require, response) {
-    response.sendfile('public/prijava.html');
+  response.render('prijava');
 });
 
 streznik.listen(process.env.PORT, function() {

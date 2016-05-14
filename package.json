@@ -4,6 +4,8 @@
   "author": "Hudzo",
   "dependencies": {
     "express": "latest",
+    "formidable": "latest",
+    "ejs": "latest",
     "express-session":"latest"
   }
 }
