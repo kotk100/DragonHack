@@ -18,13 +18,14 @@ streznik.use(
   })
 );
 
-var glob=0;
 
 
 
-streznik.get('/', function (require, response) {
-    glob++;
-    response.sendfile('index.html');
+streznik.get('/', function (request, response) {
+    if(!request.session.prijavljen){
+        response.redirect('/prijava');
+    }
+   // response.sendfile('index.html');
 });
 
 streznik.get('/prijava', function (require, response) {
