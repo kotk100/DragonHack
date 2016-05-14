@@ -6,6 +6,8 @@
     "express": "latest",
     "formidable": "latest",
     "ejs": "latest",
-    "express-session":"latest"
+    "express-session":"latest",
+    "request"    : "latest",
+    "cheerio"    : "latest"
   }
 }
