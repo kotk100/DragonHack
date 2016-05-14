@@ -10,16 +10,19 @@
     }
     
     .center {
+      background-color:#ffffff;
       position: fixed;
       top: 15%;
       left: 50%;
       transform: translate(-50%, -15%);
       width:50%;
+      padding: 25px;
+      border-radius: 35px;
     }
   </style>
 </head>
 
-<body>
+<body style="background-image:url('images/ostalo.jpg')">
     <div style="width:100%; padding:10px;">
       <form action="/" method="get">
         <div>
@@ -39,7 +42,7 @@
             <input type="text" class="form-control" id="StudentId" name="StudentId" placeholder="Vpisna številka" />
         </div>
         <div class="form-group">
-          <select class="form-control" id="faculty" name="faculty" placeholder="Fakulteta">
+          <select class="form-control" style="color:#999" id="faculty" name="faculty" placeholder="Fakulteta">
             <option value="Zivalski vrt">Fakulteta za računalništvo in informatiko</option>
           </select>
         </div>
@@ -59,7 +62,7 @@
         <div class="form-group">
             <input type="text" class="form-control" id="distance" name="distance" placeholder="Oddaljenost od fakultete" />
         </div>
-        <div class="form-group">
+        <div class="form-group" style="float:right">
             <input type="submit" class="btn btn-default" value="Shrani" />
         </div>
       </form>
