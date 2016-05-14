@@ -8,6 +8,9 @@ var express = require('express');
 var streznik = express();
 var path = require("path");
 var expressSession = require('express-session');
+var request = require('request');
+var cheerio = require('cheerio');
+
 streznik.set('view engine', 'ejs');
 //streznik.use(express.static('public'));
 streznik.use(
@@ -23,13 +26,82 @@ streznik.use(
 
 var users;
 
-
+var parsej = function(url, callback) {
+  
+  var vrstice = [];
+  var barve = ["#ff0000", "#ff8000", "#ffff00", "#00ffbf", "#00ffff", "#0080ff", "#8000ff", "#bf00ff", "#ff00bf", "#ff0080", "#00bfff"];
+  var barva = 0;
+  request(url, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var $ = cheerio.load(body);
+      
+      var index = 0;
+      $('span').each(function(i, element){
+        var a = $(this).text(); //vse v span-u
+        var yo = a.split("\n"); //splitam v vrstice
+        
+        var asistent = "";
+        var dan = "";
+        var zacetek = "";
+        var konec = "";
+        var predavalnica = "";
+        var nazivPredmeta = "";
+        var vmesna = "";
+        
+        for(var x = 0; x < yo.length; x++) {
+          if(x == 1){
+            vmesna = yo[x].substring(16, yo[x].length-1).split(" ");
+            dan = vmesna[0];
+            zacetek = vmesna[1];
+            konec = vmesna[3];
+          }
+          
+          if(x==2){
+            predavalnica = yo[x].substring(16, yo[x].length).split(" ")[0];
+          }
+          
+          if(x==3){
+            nazivPredmeta = yo[x].substring(16, yo[x].length-1);
+          }
+          
+          if(x==5){
+            vmesna = yo[x].substring(16, yo[x].length-1).split(",");
+            asistent = vmesna[1].substring(1, vmesna[1].length)+" "+vmesna[0];
+            continue;
+          }
+        }
+        var objekt = {
+          asistent: asistent,
+          dan: dan,
+          zacetek: zacetek,
+          konec: konec,
+          naziv: nazivPredmeta,
+          predavalnica: predavalnica,
+          barva: barve[barva]
+        };
+        //console.log(objekt.barva);
+        barva = (barva+1)%11;
+        
+        vrstice[index] = objekt;
+        //console.log(vrstice[index]);
+        index++;
+      });
+      callback(vrstice);
+    }
+  });
+  
+};
 
 streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
     } else {
-      response.render('index');
+      var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=63140099";
+      parsej(url, function(vrstice){
+        response.render('index', {
+          stuff: vrstice
+        });
+      });
     }
 });
 
