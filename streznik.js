@@ -151,10 +151,18 @@ streznik.get('/', function (request, response) {
       var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
       parsej(url, function(vrstice){
         prviNaDan(vrstice, function(dnevi){
-          console.log(dnevi[0].naziv);
           var d = new Date();
           var danId = d.getDay();
-          console.log(d.getDay());
+          var hourId = d.getHours();
+          
+          if(danId >= 5) {
+            danId = 0;
+          } else {
+            if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0]))
+              danId++;
+          }
+          var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
+          
           response.render('index', {
             stuff: vrstice
           });
