@@ -38,6 +38,41 @@ streznik.get('/odjava', function (request, response) {
     response.redirect('/prijava');
 });
 
+streznik.post('/nastavitve', function(request, response) {
+        var form = new formidable.IncomingForm();
+    
+    form.parse(request, function (napaka1, polja, datoteke) {
+        var fs = require('fs');
+        fs.readFile('Trola.txt', 'utf8', function (err,data) {
+          if (err) {
+            return console.log("hahahaha");
+          }
+          var text = toString(data);
+          var lines = text.split("\n");
+          for(i in lines){
+            var curUsr = lines.split(",")
+            if(request.session.prijavljen == curUsr[0]){
+              lines[i] =  request.session.prijavljen + "," + polja;
+              //save new thingy
+              return;
+            }
+          }
+          var newUsr = request.session.prijavljen + "," + polja;
+          lines[lines.length] = newUsr;
+        
+  
+  
+      response.redirect('/nastavitve');
+    });
+})
+
+function convertToCSV(lines){
+  var csvContent = "data:text/csv;charset=utf-8,";
+  for(var i = 0; i < lines.length; i++){
+    
+  }
+}
+
 streznik.get('/nastavitve', function (request, response) {
     response.render('nastavitve');
 });
@@ -77,3 +112,4 @@ streznik.listen(process.env.PORT, function() {
   
   console.log("Strežnik pognan!");
 })
+
