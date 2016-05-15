@@ -122,6 +122,16 @@ var parsej = function(url, callback) {
             continue;
           }
         }
+        
+        var href = "";
+        
+        $('span').filter(function(){
+          return $(this).text().indexOf(dan+" "+zacetek+" - "+konec) > -1;
+        }).each(function(index, element){
+          href = $(this).next()['0'].attribs.href;
+        });
+        
+        
         var objekt = {
           asistent: asistent,
           dan: dan,
@@ -129,9 +139,10 @@ var parsej = function(url, callback) {
           konec: konec,
           naziv: nazivPredmeta,
           predavalnica: predavalnica,
-          barva: barve[barva]
+          barva: barve[barva],
+          link: href.substring(1, href.length)
         };
-        //console.log(objekt.barva);
+        //console.log(objekt.link +" "+ objekt.naziv);
         barva = (barva+1)%11;
         
         vrstice[index] = objekt;
@@ -149,33 +160,62 @@ streznik.get('/', function (request, response) {
         response.redirect('/prijava');
     } else {
       var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
-      parsej(url, function(vrstice){
-        prviNaDan(vrstice, function(dnevi){
-          var d = new Date();
-          var danId = d.getUTCDay();
-          var hourId = d.getUTCHours() + 2;
-          var povecam = 0;
-          if(danId==6 || danId == 0) {
-            povecam += (danId%5)+1;
-            danId = 0;
-          } else {
-            if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0])) {
-              danId++;
-              povecam++;
+      if(!request.session.urnik){
+        parsej(url, function(vrstice){
+          request.session.urnik = vrstice;
+          prviNaDan(vrstice, function(dnevi){
+            var d = new Date();
+            var danId = d.getUTCDay();
+            var hourId = d.getUTCHours() + 2;
+            var povecam = 0;
+            if(danId==6 || danId == 0) {
+              povecam += (danId%5)+1;
+              danId = 0;
+            } else {
+              if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0])) {
+                danId++;
+                povecam++;
+              }
             }
-          }
-          var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
-          //Cas ko se more student zbuditi
-          vrniCasOdhoda(request, zaCofa, function(time){
-            var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
-            
-            response.render('index', {
-              stuff: vrstice,
-              budilka: timebujenja
+            var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
+            //Cas ko se more student zbuditi
+            vrniCasOdhoda(request, zaCofa, function(time){
+              var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+              
+              response.render('index', {
+                stuff: vrstice,
+                budilka: timebujenja
+              });
             });
           });
         });
-      });
+      }else{
+        prviNaDan(request.session.urnik, function(dnevi){
+            var d = new Date();
+            var danId = d.getUTCDay();
+            var hourId = d.getUTCHours() + 2;
+            var povecam = 0;
+            if(danId==6 || danId == 0) {
+              povecam += (danId%5)+1;
+              danId = 0;
+            } else {
+              if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0])) {
+                danId++;
+                povecam++;
+              }
+            }
+            var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
+            //Cas ko se more student zbuditi
+            vrniCasOdhoda(request, zaCofa, function(time){
+              var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+              
+              response.render('index', {
+                stuff: request.session.urnik,
+                budilka: timebujenja
+              });
+            });
+          });
+      }
     }
 });
 
@@ -232,7 +272,53 @@ streznik.post('/nastavitve', function(request, response) {
     });
 });
 
-
+streznik.get('/zamenjava/:oblika', function(request, response){
+  var urlStuff = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?"+request.params.oblika;
+  var urlReq = request.params.oblika;
+  parsej(urlStuff, function(vrstice){
+    var index = 0;
+    while(index < request.session.urnik.length) {
+      if(urlReq == request.session.urnik[index].link)
+        break;
+      index++;
+    }
+    var zbrisana = request.session.urnik[index];
+    //console.log(index); v indexu so zbrisane vaje
+    var i;
+    var najdu = 0
+    for(i = 0; i < vrstice.length; i++) {
+      if(vrstice[i].dan == zbrisana.dan && vrstice[i] == zbrisana.zacetek){ //je ista
+        console.log("Naprej sm su");
+        continue;
+      } else {
+        //console.log(vrstice[i].dan);
+        najdu = 0;
+        console.log(vrstice[i].dan);
+        for(var x = 0; x < request.session.urnik.length; x++) {
+          if(x == index) continue;
+          if(vrstice[i].dan == request.session.urnik[x].dan){
+            console.log("Zacetek je: "+vrstice[i].zacetek + " konec je: "+vrstice[i].konec + "se zacetek in konec trenutno: " + request.session.urnik[x].zacetek + ""+request.session.urnik[x].konec);
+            if(vrstice[i].zacetek >= request.session.urnik[x].zacetek && vrstice[i].zacetek < request.session.urnik[x].konec) {
+              najdu = 1;
+              break;
+            }else if(vrstice[i].konec >= request.session.urnik[x].zacetek && vrstice[i].konec < request.session.urnik[x].konec) {
+              najdu = 1;
+              break;
+            }
+            
+          }
+        }
+        if(najdu == 0) { //ce je v redu
+          console.log("ejga, brejku sm");
+          request.session.urnik[index] = vrstice[i];
+          break;
+        }
+      }
+    }
+    //console.log(request.session.urnik[index].zacetek + " " + request.session.urnik[index].dan);
+    response.redirect('/');
+  });
+});
 
 streznik.get('/nastavitve', function (request, response) {
   if(!request.session.prijavljen)
