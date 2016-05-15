@@ -163,7 +163,6 @@ var funktionen = function(callback){
                       
                       // The .star-box-giga-star class was exactly where we wanted it to be.
                       // To get the rating, we can simply just get the .text(), no need to traverse the DOM any further
-      
                       rating = data.first().text();
                     }
         });
@@ -172,16 +171,58 @@ var funktionen = function(callback){
                     dirt2++;
                     if(dirt2==1){
                       var data = $(this);
-                      
                       // The .star-box-giga-star class was exactly where we wanted it to be.
                       // To get the rating, we can simply just get the .text(), no need to traverse the DOM any further
       
                       rating2 = data.first().text();
                     }
-                    
         });
+      
+      var vreme = rating;
+      var temperatura = rating2.split("°");
+      //ves vreme:
+      var podnebje= [
+      "Ploha",
+      "Dež",
+      "Malo dežja",
+      "Nekaj ploh in neviht",
+      "Plohe in nevihte",
+      "Možen dež",
+      "Nekaj neviht",
+      "Nevihte",
+      "Deževna obdobja",
+      ];
+      
+      for(var i in podnebje){
+        if(podnebje[i]==vreme){
+          //preveri, ce je vreme slabo:
+          console.log("Sucks to be you");
+          vreme=false;
+          break;
+        }
+      }
+      var vrni=0;
+      if(vreme){
+        switch(temperatura){
+          case temperatura<=5:
+            vrni=2 && request.session.nastavitve[7]==1;
+            break;
+            
+          case temperatura<=10 && request.session.nastavitve[6]==1:
+            vrni=1;
+            break;
+            
+          default:
+          vrni=0;
+          break;
+        }
+      }
+      else{
+        vrni=2;
+      }
         
-        callback(rating, rating2);
+        
+        callback(vrni);
       }
     });
 }
@@ -196,52 +237,8 @@ streznik.get('/', function (request, response) {
       
       
     //request za vreme:
-    funktionen(function(x,y){
-      var vreme=x;
-      var temperatura = y.split("°");
-      //ves vreme:
-      var podnebje= [
-      "Ploha",
-      "Dež",
-      "Malo dežja",
-      "Nekaj ploh in neviht",
-      "Plohe in nevihte",
-      "Možen dež",
-      "Nekaj neviht",
-      "Nevihte",
-      "Deževna obdobja",
-      ];
-      
-      
-      for(var i in podnebje){
-        if(podnebje[i]==x){
-          //preveri, ce je vreme slabo:
-          console.log("Sucks to be you");
-          vreme=false;
-          break;
-        }
-      }
-      
-      if(vreme){
-        switch(temperatura){
-          case temperatura<=5:
-            expressSession.prevoz=2;
-            break;
-            
-          case temperatura<=10:
-            expressSession.prevoz=1;
-            break;
-            
-          default:
-          expressSession.prevoz=0;
-          break;
-        }
-      }
-      else{
-        expressSession.prevoz=2;
-      }
-      
-      
+    funktionen(function(x){
+      request.session.prevoz=x;
     });
       
       
@@ -265,14 +262,40 @@ streznik.get('/', function (request, response) {
           }
           var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
           //Cas ko se more student zbuditi
-          vrniCasOdhoda(request, zaCofa, function(time){
-            var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+          switch(request.session.prevoz){
+            case 2:
+              vrniCasOdhoda(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+                
+                response.render('index', {
+                  stuff: vrstice,
+                  budilka: timebujenja
+                });
+              });
+            break;
             
-            response.render('index', {
-              stuff: vrstice,
-              budilka: timebujenja
-            });
-          });
+            case 1:
+              vrniCasOdhoda(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+                
+                response.render('index', {
+                  stuff: vrstice,
+                  budilka: timebujenja
+                });
+              });
+            break
+            
+            case 0:
+              vrniCasOdhodaKolo(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+                
+                response.render('index', {
+                  stuff: vrstice,
+                  budilka: timebujenja
+                });
+              });
+            break;
+          }
         });
       });
     }
@@ -474,6 +497,14 @@ function vrniCasTrole(zacetek, vhod, callback){
 function vrniCasOdhodaKolo(zacetek, callback){
   var razdalja = parseInt(request.session.nastavitve[9]);
   var casVoznje = Math.floor((razdalja/20) * 60);
+  var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
+  callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
+}
+
+//Funkcija za kolo
+function vrniCasOdhodaPes(zacetek, callback){
+  var razdalja = parseInt(request.session.nastavitve[9]);
+  var casVoznje = Math.floor((razdalja/5) * 60);
   var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
   callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
 }
