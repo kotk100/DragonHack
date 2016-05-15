@@ -19,78 +19,113 @@
         </div>
       </form>
     </div>
-    <div style="float:left; margin-top:14%; margin-left:16%; font-size: 5vw;">
-      <script>
-        var time = new Date("<%= budilka %>");
-        window.onload = function() {
-          setInterval(function() {
-            var now = new Date();
-            var nowSecconds = now.getDate() * 86400 + now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-            var timeSecconds = time.getDate() * 86400 + time.getHours() * 3600 + time.getMinutes() * 60 + time.getSeconds();
-            console.log(time);
-            console.log(now);
-            var dif = timeSecconds - nowSecconds;
-            if(dif <= 0){
-              window.location = window.location.href + 'prijava';
-            }
-            console.log(window.location.href);
-            document.getElementById('timeleft').innerHTML = ("0" + Math.floor(dif/3600)).slice(-2) + ":" + ("0" + Math.floor((dif % 3600) / 60)).slice(-2) + ":" + ("0" + dif % 60).slice(-2);
-          }, 1000);
-        }
-      </script>
-      <div id="timeleft"></div>
-    </div>
-    <div id="tabelaDiv" style="width: 50%; padding: 10px; margin-top:40px; margin-right:0px; margin-left:auto">
-      <table id="tabela" border="1" style="width:100%">
-        <% var maxTime = 16 %>
-        <% var stevec = 7; %>
-        <% var dnevi = ['ponedeljek', 'torek', 'sreda', 'četrtek', 'petek']; %>
-        <% var dneviB = ['Ponedeljek', 'Torek', 'Sreda', 'Četrtek', 'Petek']; %>
-        <% var urnik = stuff; %>
-        <tr style="height: 50px">
-          <% for(var i = 0; i < 6; i++){ %>
-            <% if(i==0) { %>
-              <!-- prazna celica -->
-              <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;"></td>
-            <% }else{ %>
-              <!-- dnevi -->
-              <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;font-weight: bold;font-size: 18px;">
-                <%= dneviB[i-1] %>
-              </td>
-            <% } %>
-          <% } %>
-        </tr>
-        <% for(var i = 0; i < 16; i++) { %>
-          <tr style="height: 50px">
-            <% for(var j = 0; j < 6; j++) { %>
-                <% var not = 0 %>
-                <% if(j==0){ %>
-                  <!-- ure -->
-                  <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;font-weight: bold;">
-                    <%= stevec+":00" %>
-                  </td>
-                <% }else{ %>
-                  <% for(var k = 0; k < urnik.length; k++) { %>
-                    <% if(not == 0 && urnik[k].dan == dnevi[j-1]) { %>
-                        <% if(stevec >= parseInt(urnik[k].zacetek.split(':')[0]) && stevec < parseInt(urnik[k].konec.split(':')[0])) { %>
-                          <% not = 1 %>
-                          <td style="width: 20px; background-color:  <%= urnik[k].barva%>;text-align: center; ">
-                            <%= urnik[k].naziv%>
-                          </td>
-                        <% } %>
-                    <% }%>
-                  <% } %>
-                  <% if(not == 0) { %>
-                    <td style="width: 20px; background-color:#ffffff; opacity:0.6;text-align: center;"></td>
-                  <% } %>
-                <% } %>
-            <% } %>
-          </tr>
-          <% stevec = stevec + 1; %>
-        <% } %>
-      </table>
-    </div>
     
+    </div>
+    <div id="tabelaDiv" style="width: 100%; padding: 10px; margin-top:40px; margin-right:0px; margin-left:auto">
+      
+      <table id="vlikaTabela" border="0" style="width:100%">
+        <tr>
+          <td align="center"> 
+            
+            <div style="font-size: 5vw;">
+            <script>
+              var time = new Date("<%= budilka %>");
+              window.onload = function() {
+                setInterval(function() {
+                  var now = new Date();
+                  var nowSecconds = now.getDate() * 86400 + now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                  var timeSecconds = time.getDate() * 86400 + time.getHours() * 3600 + time.getMinutes() * 60 + time.getSeconds();
+                  var dif = timeSecconds - nowSecconds;
+                  if(dif <= 0){
+                    window.location = window.location.href + 'prijava';
+                  }
+                  document.getElementById('timeleft').innerHTML = ("0" + Math.floor(dif/3600)).slice(-2) + ":" + ("0" + Math.floor((dif % 3600) / 60)).slice(-2) + ":" + ("0" + dif % 60).slice(-2);
+                }, 1000);
+              }
+            </script>
+            <div id="timeleft"></div>
+            
+          </td>
+          <td rowspan="2" style="width:47%">
+            <table id="tabela" border="1" style="width:100%">
+            <% var maxTime = 16 %>
+            <% var stevec = 7; %>
+            <% var dnevi = ['ponedeljek', 'torek', 'sreda', 'četrtek', 'petek']; %>
+            <% var dneviB = ['Ponedeljek', 'Torek', 'Sreda', 'Četrtek', 'Petek']; %>
+            <% var urnik = stuff; %>
+            <tr style="height: 50px">
+              <% for(var i = 0; i < 6; i++){ %>
+                <% if(i==0) { %>
+                  <!-- prazna celica -->
+                  <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;"></td>
+                <% }else{ %>
+                  <!-- dnevi -->
+                  <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;font-weight: bold;font-size: 18px;">
+                    <%= dneviB[i-1] %>
+                  </td>
+                <% } %>
+              <% } %>
+            </tr>
+            <% for(var i = 0; i < 16; i++) { %>
+              <tr style="height: 50px">
+                <% for(var j = 0; j < 6; j++) { %>
+                    <% var not = 0 %>
+                    <% if(j==0){ %>
+                      <!-- ure -->
+                      <td style="width: 20px; background-color:#ffffff; opacity:0.85;text-align: center;font-weight: bold;">
+                        <%= stevec+":00" %>
+                      </td>
+                    <% }else{ %>
+                      <% for(var k = 0; k < urnik.length; k++) { %>
+                        <% if(not == 0 && urnik[k].dan == dnevi[j-1]) { %>
+                            <% if(stevec >= parseInt(urnik[k].zacetek.split(':')[0]) && stevec < parseInt(urnik[k].konec.split(':')[0])) { %>
+                              <% not = 1 %>
+                              <td style="width: 20px; background-color:  <%= urnik[k].barva%>;text-align: center; ">
+                                <%= urnik[k].naziv%>
+                              </td>
+                            <% } %>
+                        <% }%>
+                      <% } %>
+                      <% if(not == 0) { %>
+                        <td style="width: 20px; background-color:#ffffff; opacity:0.6;text-align: center;"></td>
+                      <% } %>
+                    <% } %>
+                <% } %>
+              </tr>
+              <% stevec = stevec + 1; %>
+            <% } %>
+          </table>
+          </td>
+        </tr>
+        
+        <tr>
+          <td>
+            <table id="malaTabela" border="0" style="width:100%">
+              <tr>
+                <td style="text-align:center; font-size: 1.5vw">
+                  <b>Trenutno vremenska napoved:</b>
+                </td>
+                <td style="text-align:center; font-size: 1.5vw">
+                  <b>Željeno prevozno sredstvo:</b>
+                </td>
+              </tr>
+              <tr>
+                <td align="center">
+                  <% if(vreme) var url="images/sonce.jpg";else var url="images/dez.png" %>
+                  <img src=<%=url%> alt="Vreme v sliki" style="max-width:300px; max-height:300px; ">
+                </td>
+                <td align="center">
+                  <% if(prevoz==2) var url="images/bus.png";else if(prevoz==1) var url="images/kolo.png"; else var url="images/hoja.png"; %>
+                  <img src=<%=url%> alt="Prevozno sredstvo" style="max-width:300px; max-height:300px;" >
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+      
+      
+    </div>
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js">
     
     

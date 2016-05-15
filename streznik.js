@@ -144,10 +144,118 @@ var parsej = function(url, callback) {
   
 };
 
+//funkcija za vreme
+var funktionen = function(zahteva, callback){
+  var dirt1=0;
+  var dirt2=0;
+  request('http://www.accuweather.com/sl/si/ljubljana/299198/weather-forecast/299198', function (error, response, html) {
+  
+    
+      if (!error && response.statusCode == 200) {
+        var $ = cheerio.load(html);
+        var rating;
+        var rating2;
+        
+        $('span.cond').filter(function(){
+                    dirt1++;
+                    if(dirt1==1){
+                      var data = $(this);
+                      
+                      // The .star-box-giga-star class was exactly where we wanted it to be.
+                      // To get the rating, we can simply just get the .text(), no need to traverse the DOM any further
+                      rating = data.first().text();
+                    }
+        });
+        
+        $('strong.temp').filter(function(){
+                    dirt2++;
+                    if(dirt2==1){
+                      var data = $(this);
+                      // The .star-box-giga-star class was exactly where we wanted it to be.
+                      // To get the rating, we can simply just get the .text(), no need to traverse the DOM any further
+      
+                      rating2 = data.first().text();
+                    }
+        });
+      
+      var vreme = rating;
+      var temperatura = rating2.split("°");
+      //ves vreme:
+      var podnebje= [
+      "Ploha",
+      "Dež",
+      "Malo dežja",
+      "Nekaj ploh in neviht",
+      "Plohe in nevihte",
+      "Možen dež",
+      "Nekaj neviht",
+      "Nevihte",
+      "Deževna obdobja",
+      "Rahel dež"
+      ];
+      
+      for(var i in podnebje){
+        if(podnebje[i]==vreme){
+          //preveri, ce je vreme slabo:
+          //console.log("Sucks to be you");
+          vreme=false;
+          break;
+        }
+      }
+      
+      zahteva.session.vreme=vreme;
+      
+      var vrni=0;
+      if(vreme){
+        switch(temperatura){
+          case temperatura<=5 && zahteva.session.nastavitve[5]==1:
+            vrni=2;
+            break;
+            
+          case temperatura<=10 && zahteva.session.nastavitve[6]==1:
+            vrni=1;
+            break;
+            
+          default:
+          vrni=0;
+          break;
+        }
+      }
+      else{
+        if(zahteva.session.nastavitve[5]==1){
+          vrni=2;
+        }
+        else if(zahteva.session.nastavitve[6]==1){
+          vrni=1;
+        }
+        else{
+          vrni=0;
+        }
+      }
+        
+        
+        callback(vrni);
+      }
+    });
+}
+
+
+
+
 streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
     } else {
+      
+      
+    //request za vreme:
+    funktionen(request, function(x){
+      request.session.prevoz=x;
+    });
+      
+      
+      
+      
       var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
       parsej(url, function(vrstice){
         prviNaDan(vrstice, function(dnevi){
@@ -166,14 +274,46 @@ streznik.get('/', function (request, response) {
           }
           var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
           //Cas ko se more student zbuditi
-          vrniCasOdhoda(request, zaCofa, function(time){
-            var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+          switch(request.session.prevoz){
+            case 2:
+              vrniCasOdhoda(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+                
+                response.render('index', {
+                  stuff: vrstice,
+                  budilka: timebujenja,
+                  vreme: request.session.vreme,
+                  prevoz: request.session.prevoz
+                });
+              });
+            break;
             
-            response.render('index', {
-              stuff: vrstice,
-              budilka: timebujenja
-            });
-          });
+            case 1:
+              vrniCasOdhodaKolo(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+time+":00";
+                
+                response.render('index', {
+                  stuff: vrstice,
+                  budilka: timebujenja,
+                  vreme: request.session.vreme,
+                  prevoz: request.session.prevoz
+                });
+              });
+            break;
+            
+            case 0:
+              vrniCasOdhodaPes(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+time+":00";
+                
+                response.render('index', {
+                  stuff: vrstice,
+                  budilka: timebujenja,
+                  vreme: request.session.vreme,
+                  prevoz: request.session.prevoz
+                });
+              });
+            break;
+          }
         });
       });
     }
@@ -376,9 +516,17 @@ function vrniCasTrole(zacetek, vhod, callback){
 }
 
 //Funkcija za kolo
-function vrniCasOdhodaKolo(zacetek, callback){
+function vrniCasOdhodaKolo(request, zacetek, callback){
   var razdalja = parseInt(request.session.nastavitve[9]);
   var casVoznje = Math.floor((razdalja/20) * 60);
-  var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
-  callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
+  var casOdhoda = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - casVoznje - parseInt(request.session.nastavitve[8]);
+  callback(Math.floor(casOdhoda / 60) + ":" + Math.floor(casOdhoda % 60));
+}
+
+//Funkcija za kolo
+function vrniCasOdhodaPes(request, zacetek, callback){
+  var razdalja = parseInt(request.session.nastavitve[9]);
+  var casVoznje = Math.floor((razdalja/5) * 60);
+  var casOdhoda = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - casVoznje - parseInt(request.session.nastavitve[8]);
+  callback(Math.floor(casOdhoda / 60) + ":" + Math.floor(casOdhoda % 60));
 }
