@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang='si'>
+
+<head>
+  <title>BestHack</title>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+  <style>
+      .linkpage{
+          position: absolute:
+           top: 0;
+           left: 0;
+           right: 0;
+           bottom: 0;
+           width: 100%;
+           height: 100%;
+           text-indent: -9999px;
+      }
+  </style>
+  <script>
+    var audio = new Audio('sound/JohnCena.mp3');
+    audio.play(); 
+    
+    var bool = true;
+
+    window.onload = function() {
+      setInterval(function() {
+          if(bool){
+            document.body.style.backgroundColor = "#ff0000";
+            bool = false;
+          }
+          else{
+            document.body.style.backgroundColor = "#ffffff";
+            bool = true;
+          }
+      }, 500);
+    }
+    
+    window.onclick = myFunction;
+    function myFunction() {
+        window.location = window.location.href.substring(0,window.location.href.length-5);
+    }
+  </script>
+</head>
+</html>
