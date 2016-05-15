@@ -220,6 +220,11 @@ streznik.get('/prijava', function (require, response) {
   response.render('prijava');
 });
 
+streznik.get('/alarm', function(request, response) {
+    response.render('alarm');
+})
+
+
 streznik.listen(process.env.PORT, function() {
   fs.readFile('users.txt', function (err, data) {
     if (err) {
