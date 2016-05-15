@@ -113,7 +113,7 @@ var parsej = function(url, callback) {
           }
           
           if(x==3){
-            nazivPredmeta = yo[x].substring(16, yo[x].length-1);
+            nazivPredmeta = yo[x].substring(16, yo[x].length-1).split("(")[0];
           }
           
           if(x==5){
@@ -152,11 +152,11 @@ streznik.get('/', function (request, response) {
       parsej(url, function(vrstice){
         prviNaDan(vrstice, function(dnevi){
           var d = new Date();
-          var danId = d.getDay();
-          var hourId = d.getHours();
+          var danId = d.getUTCDay();
+          var hourId = d.getUTCHours() + 2;
           var povecam = 0;
-          if(danId >= 5) {
-            povecam += 7-danId;
+          if(danId==6 || danId == 0) {
+            povecam += (danId%5)+1;
             danId = 0;
           } else {
             if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0])) {
@@ -167,7 +167,7 @@ streznik.get('/', function (request, response) {
           var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
           //Cas ko se more student zbuditi
           vrniCasOdhoda(request, zaCofa, function(time){
-            var timebujenja = d.getFullYear()+'-'+d.getMonth()+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+            var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
             
             response.render('index', {
               stuff: vrstice,
