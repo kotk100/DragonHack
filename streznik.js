@@ -93,10 +93,92 @@ var parsej = function(url, callback) {
   
 };
 
+//funkcija za vreme
+var funktionen = function(callback){
+  var dirt1=0;
+  var dirt2=0;
+  request('http://www.accuweather.com/sl/si/ljubljana/299198/weather-forecast/299198', function (error, response, html) {
+  
+    
+      if (!error && response.statusCode == 200) {
+        var $ = cheerio.load(html);
+        var rating;
+        var rating2;
+        
+        $('span.cond').filter(function(){
+                    dirt1++;
+                    if(dirt1==1){
+                      var data = $(this);
+                      
+                      // The .star-box-giga-star class was exactly where we wanted it to be.
+                      // To get the rating, we can simply just get the .text(), no need to traverse the DOM any further
+      
+                      rating = data.first().text();
+                    }
+        });
+        
+        $('strong.temp').filter(function(){
+                    dirt2++;
+                    if(dirt2==1){
+                      var data = $(this);
+                      
+                      // The .star-box-giga-star class was exactly where we wanted it to be.
+                      // To get the rating, we can simply just get the .text(), no need to traverse the DOM any further
+      
+                      rating2 = data.first().text();
+                    }
+                    
+        });
+        
+        callback(rating, rating2);
+      }
+    });
+}
+
+
+
+
 streznik.get('/', function (request, response) {
     if(!request.session.prijavljen){
         response.redirect('/prijava');
     } else {
+      
+      
+    //request za vreme:
+    funktionen(function(x,y){
+      var vreme=x;
+      var temperatura = y.split("°");
+      //ves vreme:
+      var podnebje= [
+      "Ploha",
+      "Dež",
+      "Malo dežja",
+      "Nekaj ploh in neviht",
+      "Plohe in nevihte",
+      "Možen dež",
+      "Nekaj neviht",
+      "Nevihte",
+      "Deževna obdobja",
+      ];
+      
+      for(var i in podnebje){
+        if(podnebje[i]==x){
+          //preveri, ce je vreme slabo:
+          console.log("Sucks to be you");
+          break;
+        }
+      }
+      
+      if(y<5){
+        //naredi nekej glede temperature
+        
+      }
+      
+    });
+      
+      
+      
+      
       var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
       parsej(url, function(vrstice){
         response.render('index', {
