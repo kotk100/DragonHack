@@ -226,7 +226,7 @@ streznik.post('/nastavitve', function(request, response) {
             lines[lines.length] = podatki;
             
 
-            response.redirect('/nastavitve');
+            response.redirect('/');
           }
         });
     });
