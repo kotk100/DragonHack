@@ -196,37 +196,39 @@ streznik.post('/nastavitve', function(request, response) {
             var text = data.toString();
             var lines = text.split("\n");
             var prevozi;
-            if(!polja.vehicle1)prevozi = 0 + ",";
-            else prevozi = 1 + ",";
-            if(!polja.vehicle2)prevozi += 0 + ",";
-            else prevozi += 1 + ",";
-            if(!polja.vehicle3)prevozi += 0 + ",";
-            else prevozi += 1 + ",";
-            if(!polja.vehicle4)prevozi += 0 + ",";
-            else prevozi += 1 + ",";
-            var podatki = request.session.prijavljen + "," + polja.StudentId + "," + polja.faculty + "," + polja.Station + "," + prevozi + polja.time + "," + polja.distance;
-            request.session.nastavitve = podatki.split(",");
-            var flag = 0;
-            var endText;
-            for(var i in lines){
-              var curUsr = lines[i].split(",");
-              if(request.session.prijavljen == curUsr[0]){
-                lines[i] = podatki;
-                endText = lines.join("\n");
-                flag = 1;
-                break;
+            if(polja.vehicle1) response.redirect('avto');
+            else {
+              prevozi = 0 + ",";  
+              if(!polja.vehicle2)prevozi += 0 + ",";
+              else prevozi += 1 + ",";
+              if(!polja.vehicle3)prevozi += 0 + ",";
+              else prevozi += 1 + ",";
+              if(!polja.vehicle4)prevozi += 0 + ",";
+              else prevozi += 1 + ",";
+              var podatki = request.session.prijavljen + "," + polja.StudentId + "," + polja.faculty + "," + polja.Station + "," + prevozi + polja.time + "," + polja.distance;
+              request.session.nastavitve = podatki.split(",");
+              var flag = 0;
+              var endText;
+              for(var i in lines){
+                var curUsr = lines[i].split(",");
+                if(request.session.prijavljen == curUsr[0]){
+                  lines[i] = podatki;
+                  endText = lines.join("\n");
+                  flag = 1;
+                  break;
+                }
               }
-            }
-            if(flag == 0){
+              if(flag == 0){
+                lines[lines.length] = podatki;
+                endText = lines.join("\n");
+              }
+              console.log(lines);
+              fs.writeFileSync("nastavitve.txt", endText, "UTF-8",{'flags': 'w+'}); 
               lines[lines.length] = podatki;
-              endText = lines.join("\n");
+              
+  
+              response.redirect('/');
             }
-            console.log(lines);
-            fs.writeFileSync("nastavitve.txt", endText, "UTF-8",{'flags': 'w+'}); 
-            lines[lines.length] = podatki;
-            
-
-            response.redirect('/');
           }
         });
     });
@@ -296,7 +298,9 @@ streznik.get('/prijava', function (require, response) {
 streznik.get('/alarm', function(request, response) {
     response.render('alarm');
 })
-
+streznik.get('/avto', function(request, response) {
+    response.render('avto');
+})
 
 streznik.listen(process.env.PORT, function() {
   fs.readFile('users.txt', function (err, data) {

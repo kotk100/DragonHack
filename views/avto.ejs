@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang='si'>
+<head>
+  <title>BestHack</title>
+  <style>
+    .center {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+  </style>
+</head>
+
+    <body>
+        <div class="center">
+            <img src = 'images/avto.jpg' style="width:700px">
+            <div id="besedilo" style ="text-align: center; font-size: 25px;"></div>
+        </div>
+        <script>
+            document.getElementById('besedilo').innerHTML = "OPS! Zgleda, da ste pri izbiri prevoznega sredstva ponesreci izbrali avto.\nHvala ker boste izbrali okolju prijazno metodo transporta"
+            window.onclick = myFunction;
+            function myFunction() {
+                window.location = window.location.href.substring(0,window.location.href.length - 4) + "nastavitve";
+            }
+        </script>
+    </body>
