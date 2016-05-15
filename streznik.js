@@ -27,6 +27,57 @@ streznik.use(
 
 var users;
 
+var prviNaDan = function(vrstice, callback) {
+  var minDan = [];
+  for(var x = 0; x < vrstice.length; x++) {
+    var dan = vrstice[x].dan;
+    switch(dan) {
+      case "ponedeljek":  if(!minDan[0]) {
+                           minDan[0] = vrstice[x];   
+                          } else {
+                            if(minDan[0].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[0] = vrstice[x];
+                          }
+                          break;
+                          
+      case "torek":       if(!minDan[1]) {
+                           minDan[1] = vrstice[x];   
+                          } else {
+                            if(minDan[1].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[1] = vrstice[x];
+                          }
+                          break;
+                          
+      case "sreda":       if(!minDan[2]) {
+                           minDan[2] = vrstice[x];   
+                          } else {
+                            if(minDan[2].zacetek.split(":") >vrstice[x].zacetek.split(":"))
+                              minDan[2] = vrstice[x];
+                          }
+                          break;
+                          
+      case "četrtek":     if(!minDan[3]) {
+                           minDan[3] = vrstice[x];   
+                          } else {
+                            if(minDan[3].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[3] = vrstice[x];
+                          }
+                          break;
+                          
+      case "petek":       if(!minDan[4]) {
+                           minDan[4] = vrstice[x];   
+                          } else {
+                            if(minDan[4].zacetek.split(":") > vrstice[x].zacetek.split(":"))
+                              minDan[4] = vrstice[x];
+                          }
+                          break;
+                          
+      default: console.log(dan);
+    }
+  }
+  callback(minDan);
+}
+
 var parsej = function(url, callback) {
   
   var vrstice = [];
@@ -62,7 +113,7 @@ var parsej = function(url, callback) {
           }
           
           if(x==3){
-            nazivPredmeta = yo[x].substring(16, yo[x].length-1);
+            nazivPredmeta = yo[x].substring(16, yo[x].length-1).split("(")[0];
           }
           
           if(x==5){
@@ -198,8 +249,30 @@ streznik.get('/', function (request, response) {
       
       var url = "https://urnik.fri.uni-lj.si/timetable/2015_2016_letni/allocations?student=" + request.session.nastavitve[1];
       parsej(url, function(vrstice){
-        response.render('index', {
-          stuff: vrstice
+        prviNaDan(vrstice, function(dnevi){
+          var d = new Date();
+          var danId = d.getUTCDay();
+          var hourId = d.getUTCHours() + 2;
+          var povecam = 0;
+          if(danId==6 || danId == 0) {
+            povecam += (danId%5)+1;
+            danId = 0;
+          } else {
+            if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0])) {
+              danId++;
+              povecam++;
+            }
+          }
+          var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
+          //Cas ko se more student zbuditi
+          vrniCasOdhoda(request, zaCofa, function(time){
+            var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+            
+            response.render('index', {
+              stuff: vrstice,
+              budilka: timebujenja
+            });
+          });
         });
       });
     }
@@ -252,7 +325,7 @@ streznik.post('/nastavitve', function(request, response) {
             lines[lines.length] = podatki;
             
 
-            response.redirect('/nastavitve');
+            response.redirect('/');
           }
         });
     });
@@ -319,6 +392,11 @@ streznik.get('/prijava', function (require, response) {
   response.render('prijava');
 });
 
+streznik.get('/alarm', function(request, response) {
+    response.render('alarm');
+})
+
+
 streznik.listen(process.env.PORT, function() {
   fs.readFile('users.txt', function (err, data) {
     if (err) {
@@ -332,4 +410,70 @@ streznik.listen(process.env.PORT, function() {
   
   console.log("Strežnik pognan!");
 });
+//Funkcija za vracanje casa odhoda
+function vrniCasOdhoda(request, zacetek, callback){
+  var vhod = request.session.nastavitve[3];
+  
+  vrniCasTrole(zacetek, vhod, function(casOdhoda){
+    var casPriprave = request.session.nastavitve[8];
+    var skupniCas = parseInt(casOdhoda.split(".")[0] * 60) + parseInt(casOdhoda.split(".")[1]) + parseInt(casPriprave);
+    
+    callback(skupniCas);
+  });
+}
 
+//Funkcija za vracanje najugodnejsi termin trole
+function vrniCasTrole(zacetek, vhod, callback){
+  var fs = require('fs');
+  fs.readFile('Trola.txt', 'utf8', function (err,data) {
+    if (err) {
+      return console.log("hahahaha");
+    }
+    var postaje = data.split("!"); 
+    var zacPost;
+    //console.log(postaje[0]);
+    var i;
+    for (i = 0; i < postaje.length; i++){
+        zacPost = postaje[i].split(",");
+        if(zacPost[0] == vhod){
+            break;
+        }
+    }
+    var add;
+    var index, odhodniCasi;
+    if(i == 7)return "0.00";
+    if(i < 7){
+      odhodniCasi = postaje[0].split(",");
+      var maxCas = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - 10;
+      for(index = 1; index < odhodniCasi.length; index++){
+        var cas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]);
+        if(cas > maxCas){index--; break;}
+      }
+      
+      
+    }
+    else {
+      var maxCas = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - 10;
+      odhodniCasi = postaje[postaje.length - 1].split(",");
+      for(index = 1; index < odhodniCasi.length; index++){
+        var cas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]);
+        if(cas > maxCas){index--; break;}
+      }
+    }
+    
+    //-10 popravi ce dodas nov urnik!!!!
+    if(zacPost[0] == odhodniCasi[0]) callback(odhodniCasi[index]);
+    var bestCas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]) + parseInt(zacPost[1]);
+    
+    callback(Math.floor(bestCas / 60) + "." + Math.floor(bestCas % 60));
+  
+  });
+}
+
+//Funkcija za kolo
+function vrniCasOdhodaKolo(zacetek, callback){
+  var razdalja = parseInt(request.session.nastavitve[9]);
+  var casVoznje = Math.floor((razdalja/20) * 60);
+  var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
+  callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
+}
