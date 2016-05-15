@@ -217,7 +217,15 @@ var funktionen = function(zahteva, callback){
             break;
             
           default:
-          vrni=0;
+          if(zahteva.session.nastavitve[5]==1){
+            vrni=2;
+          }
+          else if(zahteva.session.nastavitve[6]==1){
+            vrni=1;
+          }
+          else{
+            vrni=0;
+          }
           break;
         }
       }
