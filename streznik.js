@@ -154,18 +154,25 @@ streznik.get('/', function (request, response) {
           var d = new Date();
           var danId = d.getDay();
           var hourId = d.getHours();
-          
+          var povecam = 0;
           if(danId >= 5) {
+            povecam += 7-danId;
             danId = 0;
           } else {
-            if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0]))
+            if(hourId > parseInt(dnevi[danId].zacetek.split(":")[0])) {
               danId++;
+              povecam++;
+            }
           }
           var zaCofa = dnevi[danId].zacetek.split(":")[0] + ".00";
           //Cas ko se more student zbuditi
-          var casBujenja = vrniCasOdhoda(zaCofa);
-          response.render('index', {
-            stuff: vrstice
+          vrniCasOdhoda(request, zaCofa, function(time){
+            var timebujenja = d.getFullYear()+'-'+d.getMonth()+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+            
+            response.render('index', {
+              stuff: vrstice,
+              budilka: timebujenja
+            });
           });
         });
       });
@@ -300,16 +307,19 @@ streznik.listen(process.env.PORT, function() {
   console.log("Strežnik pognan!");
 });
 //Funkcija za vracanje casa odhoda
-function vrniCasOdhoda(zacetek, callback){
+function vrniCasOdhoda(request, zacetek, callback){
   var vhod = request.session.nastavitve[3];
-  var casPriprave = request.session.nastavitve[8];
-  var casOdhoda = vrniCasTrole(zacetek, vhod);
-  var skupniCas = parseInt(casOdhoda.split(".")[0] * 60) + parseInt(casOdhoda.split(".")[1]) + parseInt(casPriprave);
-  callback(Math.floor(skupniCas / 60) + "." + Math.floor(skupniCas % 60));
+  
+  vrniCasTrole(zacetek, vhod, function(casOdhoda){
+    var casPriprave = request.session.nastavitve[8];
+    var skupniCas = parseInt(casOdhoda.split(".")[0] * 60) + parseInt(casOdhoda.split(".")[1]) + parseInt(casPriprave);
+    
+    callback(skupniCas);
+  });
 }
 
 //Funkcija za vracanje najugodnejsi termin trole
-function vrniCasTrole(zacetek, callback){
+function vrniCasTrole(zacetek, vhod, callback){
   var fs = require('fs');
   fs.readFile('Trola.txt', 'utf8', function (err,data) {
     if (err) {
@@ -348,8 +358,9 @@ function vrniCasTrole(zacetek, callback){
     }
     
     //-10 popravi ce dodas nov urnik!!!!
-    if(zacPost[0] == odhodniCasi[0]) return odhodniCasi[index];
+    if(zacPost[0] == odhodniCasi[0]) callback(odhodniCasi[index]);
     var bestCas = parseInt(odhodniCasi[index].split(".")[0] * 60) + parseInt(odhodniCasi[index].split(".")[1]) + parseInt(zacPost[1]);
+    
     callback(Math.floor(bestCas / 60) + "." + Math.floor(bestCas % 60));
   
   });

@@ -39,15 +39,15 @@
     <div class="center" >
       <form action="" method="post" enctype="multipart/form-data">
         <div class="form-group">
-            <input type="text" class="form-control" id="StudentId" name="StudentId" placeholder="<%= nastavitve[1] %>" />
+            <input type="text" class="form-control" id="StudentId" name="StudentId" value="<%= nastavitve[1] %>" />
         </div>
         <div class="form-group">
-          <select class="form-control" style="color:#999" id="faculty" name="faculty" placeholder="Fakulteta za računalništvo in informatiko">
+          <select class="form-control" style="color:#999" id="faculty" name="faculty" value="Fakulteta za računalništvo in informatiko">
             <option value="Zivalski vrt">Fakulteta za računalništvo in informatiko</option>
           </select>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="Station" name="Station" placeholder="<%= nastavitve[3] %>" />
+            <input type="text" class="form-control" id="Station" name="Station" value="<%= nastavitve[3] %>" />
         </div>
         <div class="form-group">
           <p> Prevozna sredstva:</p>
@@ -57,10 +57,10 @@
             <input type="checkbox" style="margin-left:20px;" name="vehicle4" value="0" <% if(nastavitve[7] == 1){ %> checked <% } %>>  Hoja<br>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="time" name="time" placeholder="<%= nastavitve[8] %>" />
+            <input type="text" class="form-control" id="time" name="time" value="<%= nastavitve[8] %>" />
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" id="distance" name="distance" placeholder="<%= nastavitve[9] %>" />
+            <input type="text" class="form-control" id="distance" name="distance" value="<%= nastavitve[9] %>" />
         </div>
         <div class="form-group" style="float:right">
             <input type="submit" class="btn btn-default" value="Shrani" />

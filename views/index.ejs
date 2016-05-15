@@ -19,6 +19,25 @@
         </div>
       </form>
     </div>
+    <div>
+      <script>
+        var time = new Date("<%= budilka %>");
+        window.onload = function() {
+          setInterval(function() {
+            var now = new Date();
+            var nowSecconds = now.getDate() * 86400 + now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            var timeSecconds = time.getDate() * 86400 + time.getHours() * 3600 + time.getMinutes() * 60 + time.getSeconds();
+            var dif = timeSecconds - nowSecconds;
+            if(dif <= 0){
+              window.location = window.location.href + 'prijava';
+            }
+            console.log(window.location.href);
+            document.getElementById('timeleft').innerHTML = Math.floor(dif/3600) + ":" + Math.floor((dif % 3600) / 60) + ":" + dif % 60;
+          }, 1000);
+        }
+      </script>
+      <div id="timeleft"></div>
+    </div>
     <div id="tabelaDiv" style="width: 50%; padding: 10px; margin-top:40px; margin-right:0px; margin-left:auto">
       <table id="tabela" border="1" style="width:100%">
         <% var maxTime = 16 %>
