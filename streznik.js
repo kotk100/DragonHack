@@ -145,7 +145,7 @@ var parsej = function(url, callback) {
 };
 
 //funkcija za vreme
-var funktionen = function(callback){
+var funktionen = function(zahteva, callback){
   var dirt1=0;
   var dirt2=0;
   request('http://www.accuweather.com/sl/si/ljubljana/299198/weather-forecast/299198', function (error, response, html) {
@@ -201,14 +201,17 @@ var funktionen = function(callback){
           break;
         }
       }
+      
+      zahteva.session.vreme=vreme;
+      
       var vrni=0;
       if(vreme){
         switch(temperatura){
-          case temperatura<=5:
-            vrni=2 && request.session.nastavitve[7]==1;
+          case temperatura<=5 && zahteva.session.nastavitve[5]==1:
+            vrni=2;
             break;
             
-          case temperatura<=10 && request.session.nastavitve[6]==1:
+          case temperatura<=10 && zahteva.session.nastavitve[6]==1:
             vrni=1;
             break;
             
@@ -218,7 +221,15 @@ var funktionen = function(callback){
         }
       }
       else{
-        vrni=2;
+        if(zahteva.session.nastavitve[5]==1){
+          vrni=2;
+        }
+        else if(zahteva.session.nastavitve[6]==1){
+          vrni=1;
+        }
+        else{
+          vrni=0;
+        }
       }
         
         
@@ -237,7 +248,7 @@ streznik.get('/', function (request, response) {
       
       
     //request za vreme:
-    funktionen(function(x){
+    funktionen(request, function(x){
       request.session.prevoz=x;
     });
       
@@ -275,19 +286,19 @@ streznik.get('/', function (request, response) {
             break;
             
             case 1:
-              vrniCasOdhoda(request, zaCofa, function(time){
-                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+              vrniCasOdhodaKolo(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+time+":00";
                 
                 response.render('index', {
                   stuff: vrstice,
                   budilka: timebujenja
                 });
               });
-            break
+            break;
             
             case 0:
-              vrniCasOdhodaKolo(request, zaCofa, function(time){
-                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+Math.floor(time/60)+":"+time%60+":00";
+              vrniCasOdhodaPes(request, zaCofa, function(time){
+                var timebujenja = d.getFullYear()+'-'+(d.getMonth()+1)+'-'+(d.getDate()+povecam)+" "+time+":00";
                 
                 response.render('index', {
                   stuff: vrstice,
@@ -494,17 +505,17 @@ function vrniCasTrole(zacetek, vhod, callback){
 }
 
 //Funkcija za kolo
-function vrniCasOdhodaKolo(zacetek, callback){
+function vrniCasOdhodaKolo(request, zacetek, callback){
   var razdalja = parseInt(request.session.nastavitve[9]);
   var casVoznje = Math.floor((razdalja/20) * 60);
-  var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
-  callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
+  var casOdhoda = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - casVoznje - parseInt(request.session.nastavitve[8]);
+  callback(Math.floor(casOdhoda / 60) + ":" + Math.floor(casOdhoda % 60));
 }
 
 //Funkcija za kolo
-function vrniCasOdhodaPes(zacetek, callback){
+function vrniCasOdhodaPes(request, zacetek, callback){
   var razdalja = parseInt(request.session.nastavitve[9]);
   var casVoznje = Math.floor((razdalja/5) * 60);
-  var casOdhoda = casVoznje + parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) + parseInt(request.session.nastavitve[8]);
-  callback(Math.floor(casOdhoda / 60) + "." + Math.floor(casOdhoda % 60));
+  var casOdhoda = parseInt(zacetek.split(".")[0] * 60) + parseInt(zacetek.split(".")[1]) - casVoznje - parseInt(request.session.nastavitve[8]);
+  callback(Math.floor(casOdhoda / 60) + ":" + Math.floor(casOdhoda % 60));
 }
