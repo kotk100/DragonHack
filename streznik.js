@@ -161,18 +161,35 @@ streznik.get('/', function (request, response) {
       "Deževna obdobja",
       ];
       
+      
       for(var i in podnebje){
         if(podnebje[i]==x){
           //preveri, ce je vreme slabo:
           console.log("Sucks to be you");
+          vreme=false;
           break;
         }
       }
       
-      if(y<5){
-        //naredi nekej glede temperature
-        
+      if(vreme){
+        switch(temperatura){
+          case temperatura<=5:
+            expressSession.prevoz=2;
+            break;
+            
+          case temperatura<=10:
+            expressSession.prevoz=1;
+            break;
+            
+          default:
+          expressSession.prevoz=0;
+          break;
+        }
       }
+      else{
+        expressSession.prevoz=2;
+      }
+      
       
     });
       
