@@ -191,6 +191,7 @@ var funktionen = function(zahteva, callback){
       "Nekaj neviht",
       "Nevihte",
       "Deževna obdobja",
+      "Rahel dež"
       ];
       
       for(var i in podnebje){
@@ -280,7 +281,9 @@ streznik.get('/', function (request, response) {
                 
                 response.render('index', {
                   stuff: vrstice,
-                  budilka: timebujenja
+                  budilka: timebujenja,
+                  vreme: request.session.vreme,
+                  prevoz: request.session.prevoz
                 });
               });
             break;
@@ -291,7 +294,9 @@ streznik.get('/', function (request, response) {
                 
                 response.render('index', {
                   stuff: vrstice,
-                  budilka: timebujenja
+                  budilka: timebujenja,
+                  vreme: request.session.vreme,
+                  prevoz: request.session.prevoz
                 });
               });
             break;
@@ -302,7 +307,9 @@ streznik.get('/', function (request, response) {
                 
                 response.render('index', {
                   stuff: vrstice,
-                  budilka: timebujenja
+                  budilka: timebujenja,
+                  vreme: request.session.vreme,
+                  prevoz: request.session.prevoz
                 });
               });
             break;
